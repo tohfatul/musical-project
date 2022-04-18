@@ -13,6 +13,11 @@ app.use(
     express.static(path.join(__dirname, 'public', 'css', 'bootstrap-4.0.0'))
   );
 
+  app.use(
+    "/img",
+    express.static(path.join(__dirname, 'public', 'img'))
+  );
+
 app.get('/', (req, res, next)=>{
     res.sendFile(path.join(__dirname, 'views', 'index.html'));
     

@@ -1,5 +1,5 @@
 
-let myMusics=[];
+let myMusics=[{id:1, title:'hey', user:'xyz'}];
 
 module.exports = class MyMusic{
     constructor(id, title, user){
@@ -12,7 +12,11 @@ module.exports = class MyMusic{
         myMusics.push(this);
     }
 
-    static getMusics(user){
-        return myMusics.filter(u=>u.user==user);
+    // static getMusics(user){
+    //     return myMusics.filter(u=>u.user==user);
+    // }
+
+    static getMusics(){
+        return myMusics;
     }
 }

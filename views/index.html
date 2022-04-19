@@ -13,29 +13,35 @@
 
         window.onload = function () {
 
-            let x = document.getElementById('showInvalid');
-            x.style.display = 'none';
-            document.getElementById('frmLogout').style.display='none';
-            document.getElementById('frmLogin').style.display='block';
 
-            document.getElementById('before-login').style.display='block';
-            document.getElementById('after-login').style.display='none';
+            // document.getElementById('frmLogout').style.display = 'none';
+            // document.getElementById('frmLogin').style.display = 'block';
 
-            sessionStorage.clear();
+            // document.getElementById('before-login').style.display = 'block';
+            // document.getElementById('after-login').style.display = 'none';
 
-            document.getElementById('logout').onclick=function(){
+            // sessionStorage.clear();
+
+            populatePage();
+
+            document.getElementById('logout').onclick = function () {
                 sessionStorage.clear();
 
-                let xx = document.getElementById('showInvalid');
-                xx.style.display = 'none';
-                document.getElementById('frmLogout').style.display='none';
-                document.getElementById('frmLogin').style.display='block';
+                // let xx = document.getElementById('showInvalid');
+                // xx.style.display = 'none';
+                // document.getElementById('frmLogout').style.display = 'none';
+                // document.getElementById('frmLogin').style.display = 'block';
 
-                document.getElementById('txtUserName').value='';
-                document.getElementById('txtPassword').value='';
+                // document.getElementById('txtUserName').value = '';
+                // document.getElementById('txtPassword').value = '';
 
-                document.getElementById('before-login').style.display='block';
-                document.getElementById('after-login').style.display='none';
+                // document.getElementById('before-login').style.display = 'block';
+                // document.getElementById('after-login').style.display = 'none';
+
+                populatePage();
+
+                clearMusicList();
+                console.log('loged out');
 
             };
 
@@ -55,59 +61,155 @@
 
                         //document.getElementById('username').innerHTML=res.username;
                         sessionStorage.setItem('username', res.username);
-                        document.getElementById('welcomeuser').innerHTML= 'Welcome, ' + res.username;
 
-                        if (sessionStorage.getItem('username') === 'not ok') {
+                        document.getElementById('txtUserName').value = '';
+                        document.getElementById('txtPassword').value = '';
 
-                            x.style.display = 'block';
 
-                            document.getElementById('frmLogout').style.display='none';
-                            document.getElementById('frmLogin').style.display='block';
+                        populatePage();
 
-                            document.getElementById('before-login').style.display='block';
-                            document.getElementById('after-login').style.display='none';
 
-                        } else {
-                            x.style.display = 'none';
+                    });
+            }
 
-                            document.getElementById('frmLogout').style.display='block';
-                            document.getElementById('frmLogin').style.display='none';
+        }
 
-                            document.getElementById('before-login').style.display='none';
-                            document.getElementById('after-login').style.display='block';
-                        }
+        function populatePage() {
+            clearMusicList();
+            if (sessionStorage.getItem('username') === 'not ok') {
 
-                        
-                       
+                document.getElementById('showInvalid').display = 'block';
+
+                document.getElementById('frmLogout').style.display = 'none';
+                document.getElementById('frmLogin').style.display = 'block';
+
+                document.getElementById('before-login').style.display = 'block';
+                document.getElementById('after-login').style.display = 'none';
+
+            }
+
+            if (sessionStorage.getItem('username') !== 'not ok' || sessionStorage.getItem('username') !== null) {
+                document.getElementById('showInvalid').display = 'none';
+
+                document.getElementById('frmLogout').style.display = 'block';
+                document.getElementById('frmLogin').style.display = 'none';
+
+                document.getElementById('before-login').style.display = 'none';
+                document.getElementById('after-login').style.display = 'block';
+
+                document.getElementById('welcomeuser').innerHTML = 'Welcome, ' + sessionStorage.getItem('username');
+
+                fetch("http://localhost:3000/musics")
+                    .then((res) => res.json())
+                    .then((res) => {
+
+
+                        buildMusicList(res);
                     });
 
+                fetch("http://localhost:3000/myMusics")
+                    .then((res) => res.json())
+                    .then((res) => {
 
+
+                        buildMyMusic(res);
+                    });
 
 
             }
 
+            if (sessionStorage.getItem('username') === null) {
 
-            // fetch("http://localhost:3000/users")
-            //     .then((res) => res.json())
-            //     .then((res) => {
+                document.getElementById('showInvalid').display = 'none';
+                document.getElementById('frmLogout').style.display = 'none';
+                document.getElementById('frmLogin').style.display = 'block';
 
+                document.getElementById('before-login').style.display = 'block';
+                document.getElementById('after-login').style.display = 'none';
 
-            //         buildTable(res);
-            //     });
-
-
+            }
         }
 
-        // function buildTable(data) {
-        //     var table = document.getElementById('myTable');
-        //     for (let i = 0; i < data.length; i++) {
-        //         let rw = `<tr>
-        //                     <td>${data[i].username}</td>
-        //                 </tr>`
+        function buildMyMusic(data) {
+            var table = document.getElementById('myMusicList');
+            for (let i = 0; i < data.length; i++) {
+                let rw = `<tr>
+                            <td>${data[i].id}</td>
+                            <td>${data[i].title}</td>
+                            
+                            <td>
+                                <button onclick="addToFavourite(${data[i]})">
+                                    <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                
+                            </td>
+                        </tr>`
 
-        //         table.innerHTML += rw;
-        //     }
-        // }
+                table.innerHTML += rw;
+            }
+        }
+
+        function buildMusicList(data) {
+
+            var table = document.getElementById('musicList');
+            for (let i = 0; i < data.length; i++) {
+                let rw = `<tr>
+                            <td>${data[i].id}</td>
+                            <td>${data[i].title}</td>
+                            <td>${data[i].releasedate}</td>
+                            <td>
+                                <button onclick="addToFavourite(${data[i].id})">
+                                    <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                
+                            </td>
+                        </tr>`
+
+                table.innerHTML += rw;
+            }
+        }
+
+        function clearMusicList() {
+            let table = document.getElementById("musicList");
+            table.innerHTML = "";
+        }
+
+        function addToFavourite(val) {
+           
+            let obj ={
+                id:val,
+                title:'something',
+                user: sessionStorage.getItem('username')
+            }
+            //val.user = sessionStorage.getItem('username');
+
+            fetch("http://localhost:3000/myMusics", {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(obj)
+            })
+                .then((res) => res.json())
+                .then((res) => {
+
+                    //document.getElementById('username').innerHTML=res.username;
+                    // sessionStorage.setItem('username', res.username);
+
+                    // document.getElementById('txtUserName').value='';
+                    // document.getElementById('txtPassword').value='';
+
+
+                    // populatePage();
+
+                    fetch("http://localhost:3000/myMusics")
+                        .then((res) => res.json())
+                        .then((res) => {
+                            buildMyMusic(res);
+                        });
+
+                });
+
+            
+        }
     </script>
 </head>
 
@@ -149,15 +251,14 @@
 
                     </div>
                     <br>
-                    <span id="showInvalid" style="display: none;" class="text-danger float-right">Invalid username/ password</span>
+                    <span id="showInvalid" style="display: none;" class="text-danger float-right">Invalid username/
+                        password</span>
 
                 </div>
 
                 <div id="frmLogout" class="float-right">
                     <div class="form-inline">
-                        <input type="text" 
-                        class="form-control form-control-sm mr-2"
-                        placeholder="serach">
+                        <input type="text" class="form-control form-control-sm mr-2" placeholder="serach">
                         <button class="btn btn-default btn-sm mr-2">Search</button>
                         <label for="" id="welcomeuser">Welcome</label>
                         <button id="logout" class="btn btn-danger btn-sm ml-2">Logout</button>
@@ -190,20 +291,8 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>See you again</td>
-                            <td>2020-01-01</td>
-                            <td>+</td>
-                        </tr>
+                    <tbody id="musicList">
 
-                        <tr>
-                            <td>1</td>
-                            <td>Baby baby</td>
-                            <td>2019-01-01</td>
-                            <td><i class="fa-solid fa-plus"></i></td>
-                        </tr>
                     </tbody>
                 </table>
 
@@ -214,25 +303,25 @@
                 <table class="table table-sm table-bordered">
                     <thead>
                         <tr>
-                            <th width="10%">Id</th>
+                            <th width="10%">S/L</th>
                             <th width="70%">Title</th>
                             <th width="20%">actions</th>
-                            
+
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="myMusicList">
                         <tr>
                             <td>1</td>
                             <td>See you again</td>
-                           
+
                             <td><i class="fa-solid fa-minus mr-3"></i> <i class="fa-solid fa-play"></i></td>
                         </tr>
 
                         <tr>
                             <td>2</td>
                             <td>Baby baby</td>
-                           
+
                             <td><i class="fa-solid fa-minus mr-3"></i> <i class="fa-solid fa-play"></i></td>
                         </tr>
                     </tbody>

@@ -11,4 +11,9 @@ module.exports = class Music{
     save(){
         musics.push(this);
     }
+
+
+    static getMusics(){
+        return musics;
+    }
 }

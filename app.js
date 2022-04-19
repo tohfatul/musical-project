@@ -1,14 +1,18 @@
 const express=require('express');
 const path=require('path');
+//const cors=require('cors');
 const User = require('./models/user');
+const musicRouter = require('./routes/musicRoute');
+const myMusicRouter = require('./routes/myMusicRoute');
 
 const res = require('express/lib/response');
 const { json } = require('express/lib/response');
+
 const app=express();
 
+//app.use(cors());
 app.use(express.json()); //to accept data in json format
 app.use(express.urlencoded({ extended: true })); //decoding data send from html form
-
 
 
 app.use(
@@ -31,6 +35,8 @@ app.get('/', (req, res, next)=>{
     
 });
 
+app.use('/musics', musicRouter);
+app.use('/myMusics', myMusicRouter);
 
 app.get('/users', (req, res, next)=>{
     res.send(User.getUsers());

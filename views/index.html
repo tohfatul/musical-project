@@ -75,6 +75,7 @@
         }
 
         function populatePage() {
+            console.log(sessionStorage.getItem('username'));
             clearMusicList();
             if (sessionStorage.getItem('username') === 'not ok') {
 
@@ -85,6 +86,7 @@
 
                 document.getElementById('before-login').style.display = 'block';
                 document.getElementById('after-login').style.display = 'none';
+                
 
             }
 
@@ -183,6 +185,7 @@
             }
             //val.user = sessionStorage.getItem('username');
 
+            console.log(JSON.stringify(obj));
             fetch("http://localhost:3000/myMusics", {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
@@ -200,11 +203,11 @@
 
                     // populatePage();
 
-                    fetch("http://localhost:3000/myMusics")
-                        .then((res) => res.json())
-                        .then((res) => {
-                            buildMyMusic(res);
-                        });
+                    // fetch("http://localhost:3000/myMusics")
+                    //     .then((res) => res.json())
+                    //     .then((res) => {
+                    //         buildMyMusic(res);
+                    //     });
 
                 });
 

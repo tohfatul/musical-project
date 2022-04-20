@@ -1,0 +1,28 @@
+{
+    "id":1,
+    "title":"to be loved",
+    "releasedate": "2019-01-01",
+    "audioLink": "/songs/To_Be_Loved.mp3"
+}
+
+{
+    "id":2,
+    "title":"La La Li La",
+    "releasedate": "2018-01-01",
+    "audioLink": "/songs/La_La_Li.mp3"
+}
+
+{
+    "id":3,
+    "title":"Haya Haya",
+    "releasedate": "2017-01-01",
+    "audioLink": "/songs/Hayya_Hayya.mp3"
+}
+
+
+{
+    "id":4,
+    "title":"As it was new",
+    "releasedate": "2017-01-01",
+    "audioLink": "/songs/As_It_Was_New.mp3"
+}

@@ -1,5 +1,6 @@
 
 let musics=[];
+let serachedItems=[];
 
 module.exports = class Music{
     constructor(id, title, releasedate, audioLink){
@@ -16,5 +17,16 @@ module.exports = class Music{
 
     static getMusics(){
         return musics;
+    }
+
+    static search(searchKey){
+        serachedItems=[];
+       for(let i=0; i<musics.length; i++){
+            let res = musics[i].title.includes(searchKey);
+            if (res) {
+                serachedItems.push(musics[i]);
+            }
+       }
+       return serachedItems;
     }
 }

@@ -13,13 +13,14 @@ module.exports = class MyMusic{
         myMusics.push(this);
     }
 
-    // static getMusics(user){
-    //     return myMusics.filter(u=>u.user==user);
-    // }
-
-    static getMusics(){
-        return myMusics;
+    static getMusics(user){
+        console.log(user);
+        return myMusics.filter(u=>u.user==user);
     }
+
+    // static getMusics(){
+    //     return myMusics;
+    // }
 
     static remove(id){
         const index = myMusics.findIndex((m) => m.id == id);

@@ -9,3 +9,7 @@ exports.save=(req, res, next)=>{
 exports.getMusics=(req, res, next)=>{
     res.status(200).json(Music.getMusics());
 }
+
+exports.search=(req, res, next)=>{
+    res.status(200).json(Music.search(req.params.searchKey));
+}

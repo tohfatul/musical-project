@@ -41,6 +41,7 @@
 
                         //document.getElementById('username').innerHTML=res.username;
                         sessionStorage.setItem('username', res.username);
+                        sessionStorage.setItem('datetime', new Date());
 
                         document.getElementById('txtUserName').value = '';
                         document.getElementById('txtPassword').value = '';
@@ -74,6 +75,8 @@
                 document.getElementById('after-login').style.display = 'none';
 
                 document.getElementById('wrong-user-pass').style.display = 'block';
+                document.getElementById('extra').style.display = 'none';
+                document.getElementById('extra2').style.display = 'none';
 
                 console.log('printed from not ok');
                 console.log(sessionStorage.getItem('username'));
@@ -89,6 +92,8 @@
 
                 document.getElementById('wrong-user-pass').style.display = 'none';
 
+                document.getElementById('extra').style.display = 'block';
+                document.getElementById('extra2').style.display = 'block';
                 document.getElementById('welcomeuser').innerHTML = 'Welcome, ' + sessionStorage.getItem('username');
 
                 fetch("http://localhost:3000/musics")
@@ -97,7 +102,7 @@
                         buildMusicList(res);
                     });
 
-                fetch("http://localhost:3000/myMusics")
+                fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
                     .then((res) => res.json())
                     .then((res) => {
                         buildMyMusic(res);
@@ -112,6 +117,8 @@
                 document.getElementById('before-login').style.display = 'block';
                 document.getElementById('after-login').style.display = 'none';
                 document.getElementById('wrong-user-pass').style.display = 'none';
+                document.getElementById('extra').style.display = 'none';
+                document.getElementById('extra2').style.display = 'none';
             }
         }
 
@@ -142,6 +149,19 @@
                
             }
             
+        }
+
+        function search(){
+            let searchKey = document.getElementById('txtSearchKey').value;
+
+            fetch("http://localhost:3000/musics/" + searchKey)
+                        .then((res) => res.json())
+                        .then((res) => {
+                            clearMusicList();
+                            buildMusicList(res);
+
+                            document.getElementById('searchTitle').innerHTML='Results of "' + searchKey + '"';
+                        });
         }
 
         function buildMusicList(data) {
@@ -177,7 +197,7 @@
                 audioLink: audioLink,
                 user: sessionStorage.getItem('username')
             }
-            console.log(obj);
+            
 
             fetch("http://localhost:3000/myMusics", {
                 method: 'POST',
@@ -186,7 +206,7 @@
             })
                 .then((res) => {
                     
-                    fetch("http://localhost:3000/myMusics")
+                    fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
                         .then((res) => res.json())
                         .then((res) => {
                             buildMyMusic(res);
@@ -203,11 +223,11 @@
             fetch("http://localhost:3000/myMusics/removeMusic", {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({id: id})
+                body: JSON.stringify({id: id, user: sessionStorage.getItem('username')})
             })
                 .then((res) => {
                     
-                    fetch("http://localhost:3000/myMusics")
+                    fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
                         .then((res) => res.json())
                         .then((res) => {
                             buildMyMusic(res);
@@ -273,8 +293,8 @@
 
                 <div id="frmLogout" class="float-right">
                     <div class="form-inline">
-                        <input type="text" class="form-control form-control-sm mr-2" placeholder="serach">
-                        <button class="btn btn-default btn-sm mr-2">Search</button>
+                        <input type="text" id="txtSearchKey" class="form-control form-control-sm mr-2" placeholder="serach">
+                        <button class="btn btn-default btn-sm mr-2" onclick="search()">Search</button>
                         <label for="" id="welcomeuser">Welcome</label>
                         <button id="logout" class="btn btn-danger btn-sm ml-2">Logout</button>
                     </div>
@@ -292,7 +312,7 @@
             </div>
 
             <div class="col-sm-12 text-center" id="after-login">
-                <h2>Song you may interest</h2>
+                <h2 id="searchTitle">Song you may interest</h2>
 
                 <br>
                 <table class="table table-sm table-bordered">
@@ -338,7 +358,7 @@
         <div class="row">
            
             <div class="col-sm-6 text-center">
-                <div class="mt-4">
+                <div class="mt-4" id="extra2">
                     <i class="fa-solid fa-angle-left mr-3"></i>
                     <i class="fa-solid fa-play mr-3"></i>
                     <i class="fa-solid fa-angle-right mr-3"></i>
@@ -346,7 +366,7 @@
                 
             </div>
            
-            <div class="col-sm-4">
+            <div class="col-sm-4" id="extra">
                 <p id="audioTitle"></p>
                 <audio controls  id="myAudio">
                     
@@ -358,6 +378,7 @@
                 
             </div>
         </div>
+       
     
     </div>
 

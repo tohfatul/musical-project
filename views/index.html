@@ -10,8 +10,13 @@
     <link rel="stylesheet" href="/fontawesome/css/all.min.css">
 
     <script>
-
+            let playList = [];
+           
+           let currPlayIndx = '';
+           let currPlayTitle='';
+           let currPlayLink='';
         window.onload = function () {
+           
 
             populatePage();
 
@@ -138,7 +143,7 @@
                             
                             <td>               
                                 <i class="fa-solid fa-minus mr-3" onclick="removeFromPlay('${data[i].id}')"></i>
-                                <i class="fa-solid fa-play" onclick="playAudio('${data[i].audioLink}', '${data[i].title}')"></i>
+                                <i class="fa-solid fa-play" onclick="playAudio('${data[i].audioLink}', '${data[i].title}', '${data[i].id}')"></i>
                             </td>
                         </tr>`
 
@@ -210,6 +215,7 @@
                         .then((res) => res.json())
                         .then((res) => {
                             buildMyMusic(res);
+                            playList=[...res];
                         });
 
                 });
@@ -231,17 +237,79 @@
                         .then((res) => res.json())
                         .then((res) => {
                             buildMyMusic(res);
+                            playList  = [...res];
                         });
 
                 });
         }
     
-        function playAudio(audioLink, title){
+        function playAudio(audioLink, title, songid){
             document.getElementById('audioTitle').innerHTML=title;
-            document.getElementById('myAudio').src="/songs/As_It_Was_New.mp3";
+            document.getElementById('myAudio').src=audioLink;
             document.getElementById('myAudio').play();
+            document.getElementById('playBtn').style.display='none';
+            document.getElementById('pauseBtn').style.display='block';
+
+            fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
+                        .then((res) => res.json())
+                        .then((res) => {
+                            buildMyMusic(res);
+                            playList  = res;
+                        });
+
+            
+            currPlayIndx=songid;
+            currPlayTitle = title;
+            currPlayLink=audioLink;
+           
         }
     
+        function pauseAudio(){
+            document.getElementById('myAudio').pause();
+            document.getElementById('playBtn').style.display='block';
+            document.getElementById('pauseBtn').style.display='none';
+        }
+
+        function playFromPause(){
+            //document.getElementById('audioTitle').innerHTML=title;
+            //document.getElementById('myAudio').src=audioLink;
+            document.getElementById('myAudio').play();
+            document.getElementById('playBtn').style.display='none';
+            document.getElementById('pauseBtn').style.display='block';
+        }
+
+        function playNext(){
+           
+            let currIndx = playList.findIndex(s=>s.id==currPlayIndx);
+            
+            let toPlayIndex=0;
+            if(currIndx>-1){
+                if(currIndx<playList.length-1){
+                    toPlayIndex = currIndx + 1;
+                }
+            }
+            
+            playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
+            
+            
+        }
+
+        function playPrev(){
+           
+           let currIndx = playList.findIndex(s=>s.id==currPlayIndx);
+           
+           let toPlayIndex=0;
+           if(currIndx>-1){
+               if(currIndx>0){
+                   toPlayIndex = currIndx - 1;
+               }
+           }
+           
+           playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
+           
+           
+       }
+        
     </script>
 </head>
 
@@ -357,16 +425,21 @@
 
         <div class="row">
            
-            <div class="col-sm-6 text-center">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-2">
                 <div class="mt-4" id="extra2">
-                    <i class="fa-solid fa-angle-left mr-3"></i>
-                    <i class="fa-solid fa-play mr-3"></i>
-                    <i class="fa-solid fa-angle-right mr-3"></i>
+                    <br>
+                    <div class="form-inline">
+                        <i class="fa-solid fa-angle-left mr-3" onclick="playPrev()"></i>
+                        <i class="fa-solid fa-play mr-3" id="playBtn" style="display: none;" onclick="playFromPause()"></i>
+                        <i class="fa-solid fa-pause mr-3" id="pauseBtn" style="display: none;" onclick="pauseAudio()"></i>
+                        <i class="fa-solid fa-angle-right mr-3" onclick="playNext()"></i>
+                    </div>
                 </div>
                 
             </div>
            
-            <div class="col-sm-4" id="extra">
+            <div class="col-sm-4 text-center" id="extra">
                 <p id="audioTitle"></p>
                 <audio controls  id="myAudio">
                     
@@ -378,7 +451,13 @@
                 
             </div>
         </div>
-       
+
+        <hr>
+       <div class="row">
+           <div class="col-sm-12">
+            &copy; Md Tohfatul Islam, ID#613775
+           </div>
+       </div>
     
     </div>
 

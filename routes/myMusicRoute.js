@@ -8,6 +8,7 @@ router.get('/', myMusicController.getMusics);
 //router.get('/musics/:musicId', musicController.getMusicById);
 
 router.post('/', myMusicController.save);
+router.post('/removeMusic', myMusicController.removeMusic);
 
 
 

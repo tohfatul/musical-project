@@ -29,6 +29,10 @@ app.use(
     "/fontawesome",
     express.static(path.join(__dirname, 'public', 'fontawesome', 'fontawesome-free-6.1.1-web'))
   );
+  app.use(
+    "/songs",
+    express.static(path.join(__dirname, 'public', 'songs'))
+  );
 
 app.get('/', (req, res, next)=>{
     res.sendFile(path.join(__dirname, 'views', 'index.html'));

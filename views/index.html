@@ -121,21 +121,27 @@
             
             table.innerHTML = "";
 
-            for (let i = 0; i < data.length; i++) {
+            if(data.length>0){
+                document.getElementById('nosong').style.display='none';
+                
+                for (let i = 0; i < data.length; i++) {
                 let rw = `<tr>
-                            <td>${data[i].id}</td>
+                            <td>${i+1}</td>
                             <td>${data[i].title}</td>
                             
-                            <td>
-                                <button onclick="addToFavourite('nn')">
-                                    <i class="fa-solid fa-plus"></i>
-                                    </button>
-                                
+                            <td>               
+                                <i class="fa-solid fa-minus mr-3" onclick="removeFromPlay('${data[i].id}')"></i>
+                                <i class="fa-solid fa-play" onclick="playAudio('${data[i].audioLink}', '${data[i].title}')"></i>
                             </td>
                         </tr>`
 
                 table.innerHTML += rw;
             }
+            }else{
+                document.getElementById('nosong').style.display='block';
+               
+            }
+            
         }
 
         function buildMusicList(data) {
@@ -147,9 +153,10 @@
                             <td>${data[i].title}</td>
                             <td>${data[i].releasedate}</td>
                             <td>
-                                <button onclick="addToFavourite('${data[i].id}', '${data[i].title}')">
-                                    <i class="fa-solid fa-plus"></i>
-                                    </button>                       
+                                  
+                                    
+                                    <i class="fa-solid fa-plus" 
+                                    onclick="addToFavourite('${data[i].id}', '${data[i].title}', '${data[i].audioLink}')"></i>
                             </td>
                         </tr>`
 
@@ -162,11 +169,12 @@
             table.innerHTML = "";
         }
 
-        function addToFavourite(id, title) {
+        function addToFavourite(id, title, audioLink) {
 
             let obj = {
                 id: id,
                 title: title,
+                audioLink: audioLink,
                 user: sessionStorage.getItem('username')
             }
             console.log(obj);
@@ -187,6 +195,33 @@
                 });
                 
         }
+    
+        function removeFromPlay(id){
+            
+           
+
+            fetch("http://localhost:3000/myMusics/removeMusic", {
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({id: id})
+            })
+                .then((res) => {
+                    
+                    fetch("http://localhost:3000/myMusics")
+                        .then((res) => res.json())
+                        .then((res) => {
+                            buildMyMusic(res);
+                        });
+
+                });
+        }
+    
+        function playAudio(audioLink, title){
+            document.getElementById('audioTitle').innerHTML=title;
+            document.getElementById('myAudio').src="/songs/As_It_Was_New.mp3";
+            document.getElementById('myAudio').play();
+        }
+    
     </script>
 </head>
 
@@ -279,8 +314,8 @@
                 <br>
 
                 <h2>Your playlist</h2>
-                <p>No songs in your playlist</p>
-                <table class="table table-sm table-bordered">
+                <p id="nosong">No songs in your playlist</p>
+                <table class="table table-sm table-bordered" id="myPlayList">
                     <thead>
                         <tr>
                             <th width="10%">S/L</th>
@@ -291,23 +326,39 @@
                     </thead>
 
                     <tbody id="myMusicList">
-                        <tr>
-                            <td>1</td>
-                            <td>See you again</td>
-
-                            <td><i class="fa-solid fa-minus mr-3"></i> <i class="fa-solid fa-play"></i></td>
-                        </tr>
-
-                        <tr>
-                            <td>2</td>
-                            <td>Baby baby</td>
-
-                            <td><i class="fa-solid fa-minus mr-3"></i> <i class="fa-solid fa-play"></i></td>
-                        </tr>
+                       
                     </tbody>
                 </table>
             </div>
         </div>
+        
+
+        <hr/>
+
+        <div class="row">
+           
+            <div class="col-sm-6 text-center">
+                <div class="mt-4">
+                    <i class="fa-solid fa-angle-left mr-3"></i>
+                    <i class="fa-solid fa-play mr-3"></i>
+                    <i class="fa-solid fa-angle-right mr-3"></i>
+                </div>
+                
+            </div>
+           
+            <div class="col-sm-4">
+                <p id="audioTitle"></p>
+                <audio controls  id="myAudio">
+                    
+                    <source src="" type="audio/mpeg">
+                  Your browser does not support the audio element.
+                  </audio>
+            </div>
+            <div class="col-sm-2">
+                
+            </div>
+        </div>
+    
     </div>
 
 

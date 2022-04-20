@@ -2,7 +2,7 @@ const myMusic = require('../models/myMusic');
 
 exports.save=(req, res, next)=>{
     let obj = req.body;
-    let newAddedMusic = new myMusic(obj.id, obj.title, obj.user).save();
+    let newAddedMusic = new myMusic(obj.id, obj.title, obj.user, obj.audioLink).save();
     res.status(200).json(newAddedMusic);
 
     
@@ -10,4 +10,8 @@ exports.save=(req, res, next)=>{
 
 exports.getMusics=(req, res, next)=>{
     res.status(200).json(myMusic.getMusics());
+}
+
+exports.removeMusic=(req, res, next)=>{
+    res.status(200).json(myMusic.remove(req.body.id));
 }

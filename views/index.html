@@ -85,6 +85,7 @@
                 document.getElementById('wrong-user-pass').style.display = 'block';
                 document.getElementById('extra').style.display = 'none';
                 document.getElementById('extra2').style.display = 'none';
+                document.getElementById('extra3').style.display = 'none';
 
                 console.log('printed from not ok');
                 console.log(sessionStorage.getItem('username'));
@@ -102,6 +103,7 @@
 
                 document.getElementById('extra').style.display = 'block';
                 document.getElementById('extra2').style.display = 'block';
+                document.getElementById('extra3').style.display = 'block';
                 document.getElementById('welcomeuser').innerHTML = 'Welcome, ' + sessionStorage.getItem('username');
 
                 fetch("http://localhost:3000/musics")
@@ -127,6 +129,7 @@
                 document.getElementById('wrong-user-pass').style.display = 'none';
                 document.getElementById('extra').style.display = 'none';
                 document.getElementById('extra2').style.display = 'none';
+                document.getElementById('extra3').style.display = 'none';
             }
         }
 
@@ -310,7 +313,6 @@
             }
 
 
-
             playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
 
             console.log(toPlayIndex);
@@ -337,9 +339,7 @@
                 }
             }
 
-
             playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
-
 
         }
 

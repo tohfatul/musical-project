@@ -10,13 +10,16 @@
     <link rel="stylesheet" href="/fontawesome/css/all.min.css">
 
     <script>
-            let playList = [];
-           
-           let currPlayIndx = '';
-           let currPlayTitle='';
-           let currPlayLink='';
+        let playList = [];
+
+        let currPlayIndx = '';
+        let currPlayTitle = '';
+        let currPlayLink = '';
+
+        let currMode = 0;
+
         window.onload = function () {
-           
+
 
             populatePage();
 
@@ -130,15 +133,15 @@
         function buildMyMusic(data) {
             let table = document.getElementById('myMusicList');
 
-            
+
             table.innerHTML = "";
 
-            if(data.length>0){
-                document.getElementById('nosong').style.display='none';
-                
+            if (data.length > 0) {
+                document.getElementById('nosong').style.display = 'none';
+
                 for (let i = 0; i < data.length; i++) {
-                let rw = `<tr>
-                            <td>${i+1}</td>
+                    let rw = `<tr>
+                            <td>${i + 1}</td>
                             <td>${data[i].title}</td>
                             
                             <td>               
@@ -147,26 +150,26 @@
                             </td>
                         </tr>`
 
-                table.innerHTML += rw;
+                    table.innerHTML += rw;
+                }
+            } else {
+                document.getElementById('nosong').style.display = 'block';
+
             }
-            }else{
-                document.getElementById('nosong').style.display='block';
-               
-            }
-            
+
         }
 
-        function search(){
+        function search() {
             let searchKey = document.getElementById('txtSearchKey').value;
 
             fetch("http://localhost:3000/musics/" + searchKey)
-                        .then((res) => res.json())
-                        .then((res) => {
-                            clearMusicList();
-                            buildMusicList(res);
+                .then((res) => res.json())
+                .then((res) => {
+                    clearMusicList();
+                    buildMusicList(res);
 
-                            document.getElementById('searchTitle').innerHTML='Results of "' + searchKey + '"';
-                        });
+                    document.getElementById('searchTitle').innerHTML = 'Results of "' + searchKey + '"';
+                });
         }
 
         function buildMusicList(data) {
@@ -202,7 +205,7 @@
                 audioLink: audioLink,
                 user: sessionStorage.getItem('username')
             }
-            
+
 
             fetch("http://localhost:3000/myMusics", {
                 method: 'POST',
@@ -210,106 +213,164 @@
                 body: JSON.stringify(obj)
             })
                 .then((res) => {
-                    
+
                     fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
                         .then((res) => res.json())
                         .then((res) => {
                             buildMyMusic(res);
-                            playList=[...res];
+                            playList = [...res];
                         });
 
                 });
-                
+
         }
-    
-        function removeFromPlay(id){
-            
-           
+
+        function removeFromPlay(id) {
+
+
 
             fetch("http://localhost:3000/myMusics/removeMusic", {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({id: id, user: sessionStorage.getItem('username')})
+                body: JSON.stringify({ id: id, user: sessionStorage.getItem('username') })
             })
                 .then((res) => {
-                    
+
                     fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
                         .then((res) => res.json())
                         .then((res) => {
                             buildMyMusic(res);
-                            playList  = [...res];
+                            playList = [...res];
                         });
 
                 });
         }
-    
-        function playAudio(audioLink, title, songid){
-            document.getElementById('audioTitle').innerHTML=title;
-            document.getElementById('myAudio').src=audioLink;
+
+        function randomIntFromInterval(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+
+        function playAudio(audioLink, title, songid) {
+            document.getElementById('audioTitle').innerHTML = title;
+            document.getElementById('myAudio').src = audioLink;
             document.getElementById('myAudio').play();
-            document.getElementById('playBtn').style.display='none';
-            document.getElementById('pauseBtn').style.display='block';
+            document.getElementById('playBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
 
             fetch("http://localhost:3000/myMusics/" + sessionStorage.getItem('username'))
-                        .then((res) => res.json())
-                        .then((res) => {
-                            buildMyMusic(res);
-                            playList  = res;
-                        });
+                .then((res) => res.json())
+                .then((res) => {
+                    buildMyMusic(res);
+                    playList = res;
 
-            
-            currPlayIndx=songid;
+                    document.getElementById('myAudio').addEventListener('ended', function(){
+                        playNext();
+                    });
+                });
+
+
+            currPlayIndx = songid;
             currPlayTitle = title;
-            currPlayLink=audioLink;
-           
-        }
-    
-        function pauseAudio(){
-            document.getElementById('myAudio').pause();
-            document.getElementById('playBtn').style.display='block';
-            document.getElementById('pauseBtn').style.display='none';
+            currPlayLink = audioLink;
+
+
+
         }
 
-        function playFromPause(){
+        function pauseAudio() {
+            document.getElementById('myAudio').pause();
+            document.getElementById('playBtn').style.display = 'block';
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+
+        function playFromPause() {
             //document.getElementById('audioTitle').innerHTML=title;
             //document.getElementById('myAudio').src=audioLink;
             document.getElementById('myAudio').play();
-            document.getElementById('playBtn').style.display='none';
-            document.getElementById('pauseBtn').style.display='block';
+            document.getElementById('playBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'block';
         }
 
-        function playNext(){
-           
-            let currIndx = playList.findIndex(s=>s.id==currPlayIndx);
-            
-            let toPlayIndex=0;
-            if(currIndx>-1){
-                if(currIndx<playList.length-1){
-                    toPlayIndex = currIndx + 1;
+        function playNext() {
+
+            let currIndx = playList.findIndex(s => s.id == currPlayIndx);
+            let toPlayIndex = 0;
+            if (currMode == 0 || currMode == 2) {
+                if (currIndx > -1) {
+                    if (currIndx < playList.length - 1) {
+                        toPlayIndex = currIndx + 1;
+                    }
+                }
+            } else if (currMode == 1) {
+                toPlayIndex = randomIntFromInterval(0, playList.length - 1);
+                //toPlayIndex = randomIntFromInterval(1, playList.length-1);
+                if (toPlayIndex == currIndx) {
+                    toPlayIndex = randomIntFromInterval(0, playList.length - 1);
                 }
             }
-            
+
+
+
             playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
-            
-            
+
+            console.log(toPlayIndex);
+
         }
 
-        function playPrev(){
-           
-           let currIndx = playList.findIndex(s=>s.id==currPlayIndx);
-           
-           let toPlayIndex=0;
-           if(currIndx>-1){
-               if(currIndx>0){
-                   toPlayIndex = currIndx - 1;
-               }
-           }
-           
-           playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
-           
-           
-       }
-        
+        function playPrev() {
+
+            let currIndx = playList.findIndex(s => s.id == currPlayIndx);
+
+            let toPlayIndex = 0;
+
+            if (currMode == 0 || currMode == 2) {
+                if (currIndx > -1) {
+                    if (currIndx > 0) {
+                        toPlayIndex = currIndx - 1;
+                    }
+                }
+            }else if (currMode == 1) {
+                toPlayIndex = randomIntFromInterval(0, playList.length - 1);
+                //toPlayIndex = randomIntFromInterval(1, playList.length-1);
+                if (toPlayIndex == currIndx) {
+                    toPlayIndex = randomIntFromInterval(0, playList.length - 1);
+                }
+            }
+
+
+            playAudio(playList[toPlayIndex].audioLink, playList[toPlayIndex].title, playList[toPlayIndex].id);
+
+
+        }
+
+        function changeMode() {
+
+            if (currMode == 0) {
+                currMode = 1;
+            } else if (currMode == 1) {
+                currMode = 2;
+            } else if (currMode == 2) {
+                currMode = 0;
+            }
+
+            if (currMode == 0) {
+                document.getElementById('rotate').style.display = 'block';
+                document.getElementById('shuffle').style.display = 'none';
+                document.getElementById('circle').style.display = 'none';
+                document.getElementById("myAudio").loop = false;
+            } else if (currMode == 1) {
+                document.getElementById('rotate').style.display = 'none';
+                document.getElementById('shuffle').style.display = 'block';
+                document.getElementById('circle').style.display = 'none';
+                document.getElementById("myAudio").loop = false;
+            } else if (currMode == 2) {
+                document.getElementById('rotate').style.display = 'none';
+                document.getElementById('shuffle').style.display = 'none';
+                document.getElementById('circle').style.display = 'block';
+                document.getElementById("myAudio").loop = true;
+            }
+        }
+
     </script>
 </head>
 
@@ -361,7 +422,8 @@
 
                 <div id="frmLogout" class="float-right">
                     <div class="form-inline">
-                        <input type="text" id="txtSearchKey" class="form-control form-control-sm mr-2" placeholder="serach">
+                        <input type="text" id="txtSearchKey" class="form-control form-control-sm mr-2"
+                            placeholder="serach">
                         <button class="btn btn-default btn-sm mr-2" onclick="search()">Search</button>
                         <label for="" id="welcomeuser">Welcome</label>
                         <button id="logout" class="btn btn-danger btn-sm ml-2">Logout</button>
@@ -414,51 +476,60 @@
                     </thead>
 
                     <tbody id="myMusicList">
-                       
+
                     </tbody>
                 </table>
             </div>
         </div>
-        
 
-        <hr/>
+
+        <hr />
 
         <div class="row">
-           
+
             <div class="col-sm-4"></div>
             <div class="col-sm-2">
                 <div class="mt-4" id="extra2">
                     <br>
                     <div class="form-inline">
                         <i class="fa-solid fa-angle-left mr-3" onclick="playPrev()"></i>
-                        <i class="fa-solid fa-play mr-3" id="playBtn" style="display: none;" onclick="playFromPause()"></i>
-                        <i class="fa-solid fa-pause mr-3" id="pauseBtn" style="display: none;" onclick="pauseAudio()"></i>
+                        <i class="fa-solid fa-play mr-3" id="playBtn" style="display: none;"
+                            onclick="playFromPause()"></i>
+                        <i class="fa-solid fa-pause mr-3" id="pauseBtn" style="display: none;"
+                            onclick="pauseAudio()"></i>
                         <i class="fa-solid fa-angle-right mr-3" onclick="playNext()"></i>
+
                     </div>
                 </div>
-                
+
             </div>
-           
+
             <div class="col-sm-4 text-center" id="extra">
                 <p id="audioTitle"></p>
-                <audio controls  id="myAudio">
-                    
+                <audio controls id="myAudio">
+
                     <source src="" type="audio/mpeg">
-                  Your browser does not support the audio element.
-                  </audio>
+                    Your browser does not support the audio element.
+                </audio>
             </div>
             <div class="col-sm-2">
-                
+                <i class="fa-solid fa-arrows-repeat-1"></i>
+                <div class="mt-4" id="extra3">
+                    <i class="fa-solid fa-rotate" id="rotate" onclick="changeMode()" style="display: block;"></i>
+                    <i class="fa-solid fa-shuffle" id="shuffle" onclick="changeMode()" style="display: none;"></i>
+                    <i class="fa-solid fa-circle-play" id="circle" onclick="changeMode()" style="display: none;"></i>
+                </div>
+
             </div>
         </div>
 
         <hr>
-       <div class="row">
-           <div class="col-sm-12">
-            &copy; Md Tohfatul Islam, ID#613775
-           </div>
-       </div>
-    
+        <div class="row">
+            <div class="col-sm-12">
+                &copy; Md Tohfatul Islam, ID#613775
+            </div>
+        </div>
+
     </div>
 
 
